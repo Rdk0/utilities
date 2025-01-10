@@ -1,0 +1,24 @@
+#!/bin/bash
+# prints csv file in tabular format
+# <column width>=int corresponds to the widest column
+# --skip-first-column is optional and used to skip the first column e.g. smiles
+# make sure that the are no spaces in the column names
+# useage input.csv 15 --skip-first-column
+
+# Check if the correct number of arguments is provided
+if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
+    echo "Usage: $0 <input.csv> <column_width> [--skip-first-column]"
+    exit 1
+fi
+
+# Assign arguments to variables
+input_file=$1
+column_width=$2
+skip_first_column=$3
+
+# Process the CSV file
+if [ "$skip_first_column" == "--skip-first-column" ]; then
+    cut -d ',' -f 2- "$input_file" | column -s ',' -t | sed 's/  */ | /g' | awk -v width="$column_width" '{for(i=1;i<=NF;i++) $i=sprintf("%-"width"s", $i)}1'
+else
+    column -s ',' -t < "$input_file" | sed 's/  */ | /g' | awk -v width="$column_width" '{for(i=1;i<=NF;i++) $i=sprintf("%-"width"s", $i)}1'
+fi
